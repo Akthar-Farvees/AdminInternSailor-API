@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors'); // Import cors package
 const app = express();
+const helmet = require('helmet');
+const authRoutes = require('./routes/auth.routes');
 
 // Allow requests from your React app on localhost:5173
 const corsOptions = {
@@ -10,9 +12,11 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions)); 
+app.use(helmet());
+app.use(express.json());
 
 const userRoutes = require('./routes/user.routes');
-app.use(express.json());
 app.use('/api/users', userRoutes);
+app.use('/api/auth', authRoutes);
 
 module.exports = app;
