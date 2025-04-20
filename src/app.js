@@ -4,6 +4,7 @@ const app = express();
 const helmet = require('helmet');
 const authRoutes = require('./routes/auth.routes');
 const companyUserRoutes = require('./routes/company-user.routes');
+const companyRoutes = require('./routes/company.routes');
 
 
 // Allow requests from your React app on localhost:5173
@@ -21,5 +22,6 @@ const userRoutes = require('./routes/user.routes');
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api', companyUserRoutes);
+app.use('/api', companyRoutes);
 
 module.exports = app;

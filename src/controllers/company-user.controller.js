@@ -97,8 +97,83 @@ const approveAdminApproval = async (req, res) => {
     }
   };
 
+
+  const updateCompanyUser = async (req, res) => {
+    const { CompanyUserId } = req.params;
+    const {
+      FirstName,
+      LastName,
+      Email,
+      Username,
+      UserMobile,
+      Status,
+    } = req.body;
+
+    console.log('Received data:', {
+      FirstName,
+      LastName,
+      Email,
+      Username,
+      UserMobile,
+      Status
+      });
+      
+  
+    // Basic validation
+    if (
+      !FirstName ||
+      !LastName ||
+      !Email ||
+      !Username ||
+      !UserMobile ||
+      !Status
+    ) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+  
+    try {
+      const pool = await poolPromise;
+
+  
+      const result = await pool
+        .request()
+        .input("CompanyUserId", sql.UniqueIdentifier, CompanyUserId)
+        .input("FirstName", sql.NVarChar(255), FirstName)
+        .input("LastName", sql.NVarChar(255), LastName)
+        .input("Email", sql.NVarChar(255), Email)
+        .input("Username", sql.NVarChar(sql.MAX), Username)
+        .input("UserMobile", sql.NVarChar(sql.MAX), UserMobile)
+        .input("Status", sql.NVarChar(100), Status)
+        .query(`
+          UPDATE CompanyUser
+          SET
+            FirstName = @FirstName,
+            LastName = @LastName,
+            Email = @Email,
+            Username = @Username,
+            UserMobile = @UserMobile,
+            Status = @Status,
+            ${Status === "ACTIVE" ? "OTP = NULL," : ""}
+            LastUpdatedDate = GETDATE()
+          WHERE CompanyUserId = @CompanyUserId
+        `);
+  
+      if (result.rowsAffected[0] === 0) {
+        return res.status(404).json({ error: "Company User is not found" });
+      }
+  
+      res.json({ message: "Company User is updated successfully!" });
+    } catch (error) {
+      console.error("Error updating Company User:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
 module.exports = {
   getUsersWithCompany,
   deleteCompanyUser,
-  approveAdminApproval
+  approveAdminApproval,
+  updateCompanyUser
 };
+
+
