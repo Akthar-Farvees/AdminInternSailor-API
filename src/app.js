@@ -6,6 +6,8 @@ const authRoutes = require('./routes/auth.routes');
 const companyUserRoutes = require('./routes/company-user.routes');
 const companyRoutes = require('./routes/company.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
+const jobRoutes = require('./routes/job.routes');
+const adminRoutes = require('./routes/admin.user.routes');
 
 
 // Allow requests from your React app on localhost:5173
@@ -25,5 +27,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api', companyUserRoutes);
 app.use('/api', companyRoutes);
 app.use('/api', dashboardRoutes);
+app.use('/api', jobRoutes);
+app.use('/api', adminRoutes);
 
 module.exports = app;
