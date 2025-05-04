@@ -16,7 +16,7 @@ model Feedbacks {
 }
 
 model adminusers {
-  AdminUserID String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  AdminUserID String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   FirstName   String    @db.VarChar(100)
   LastName    String    @db.VarChar(100)
   Username    String    @unique @db.VarChar(255)
@@ -26,7 +26,7 @@ model adminusers {
 }
 
 model company {
-  CompanyId          String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  CompanyId          String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   CompanyName        String              @db.VarChar(255)
   CompanyDescription String
   CompanyLogo        String?
@@ -41,7 +41,7 @@ model company {
 }
 
 model companydepartment {
-  CompanyDepartmentID String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  CompanyDepartmentID String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   CompanyId           String?      @db.Uuid
   DepartmentId        String?      @db.Uuid
   company             company?     @relation(fields: [CompanyId], references: [CompanyId], onDelete: NoAction, onUpdate: NoAction, map: "FK_CompanyDepartment_Company")
@@ -49,7 +49,7 @@ model companydepartment {
 }
 
 model companyuser {
-  CompanyUserId      String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  CompanyUserId      String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   FirstName          String?   @db.VarChar(255)
   LastName           String?   @db.VarChar(255)
   Username           String?   @db.VarChar(255)
@@ -66,19 +66,19 @@ model companyuser {
 }
 
 model departments {
-  DepartmentID      String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  DepartmentID      String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   DepartmentName    String              @db.VarChar(255)
   companydepartment companydepartment[]
 }
 
 model industries {
-  IndustryID   String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  IndustryID   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   IndustryName String    @db.VarChar(255)
   company      company[]
 }
 
 model job {
-  id           String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name         String?  @db.VarChar(255)
   position     String   @db.VarChar(300)
   postedDate   DateTime @db.Timestamp(6)
@@ -91,7 +91,7 @@ model job {
 }
 
 model noofemployees {
-  NoOfEmployeeID   String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  NoOfEmployeeID   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   NoOfEmployeeType String    @db.VarChar(255)
   company          company[]
 }
