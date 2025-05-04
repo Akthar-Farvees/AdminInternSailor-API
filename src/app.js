@@ -1,33 +1,34 @@
 const express = require('express');
-const cors = require('cors'); // Import cors package
+const cors = require('cors');
 const app = express();
 const helmet = require('helmet');
+
+// Import routes
 const authRoutes = require('./routes/auth.routes');
-const companyUserRoutes = require('./routes/company-user.routes');
-const companyRoutes = require('./routes/company.routes');
+const adminUserRoutes = require('./routes/admin.user.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
+const companyUserRoutes = require('./routes/company.user.routes');
+const companyRoutes = require('./routes/company.routes');
 const jobRoutes = require('./routes/job.routes');
-const adminRoutes = require('./routes/admin.user.routes');
 
-
-// Allow requests from your React app on localhost:5173
+// Allow requests from your React app
 const corsOptions = {
   origin: 'http://localhost:5173', // Your React app's URL
   methods: 'GET,POST,PUT,DELETE', // Allowed HTTP methods
   allowedHeaders: 'Content-Type,Authorization', // Allowed headers
 };
 
+// Middlewares
 app.use(cors(corsOptions)); 
 app.use(helmet());
 app.use(express.json());
 
-const userRoutes = require('./routes/user.routes');
-app.use('/api/users', userRoutes);
+// Routes
 app.use('/api/auth', authRoutes);
-app.use('/api', companyUserRoutes);
-app.use('/api', companyRoutes);
-app.use('/api', dashboardRoutes);
-app.use('/api', jobRoutes);
-app.use('/api', adminRoutes);
+app.use('/api/admin/user', adminUserRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/company/users', companyUserRoutes);
+app.use('/api/company', companyRoutes);
+app.use('/api/job', jobRoutes);
 
 module.exports = app;

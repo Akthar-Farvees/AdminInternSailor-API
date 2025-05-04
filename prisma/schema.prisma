@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Feedbacks {
+  FeedbackId  String    @id @db.Uuid
+  Name        String?   @db.VarChar(255)
+  Email       String?   @db.VarChar(255)
+  Message     String?
+  CreatedDate DateTime? @db.Timestamp(6)
+}
+
+model adminusers {
+  AdminUserID String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  FirstName   String    @db.VarChar(100)
+  LastName    String    @db.VarChar(100)
+  Username    String    @unique @db.VarChar(255)
+  Email       String    @unique @db.VarChar(255)
+  Password    String    @db.VarChar(255)
+  CreatedDate DateTime? @default(now()) @db.Timestamp(6)
+}
+
+model company {
+  CompanyId          String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  CompanyName        String              @db.VarChar(255)
+  CompanyDescription String
+  CompanyLogo        String?
+  CompanyLocation    String
+  IndustryID         String?             @db.Uuid
+  NoOfEmployeeID     String?             @db.Uuid
+  industries         industries?         @relation(fields: [IndustryID], references: [IndustryID], onDelete: NoAction, onUpdate: NoAction, map: "FK_Company_Industry")
+  noofemployees      noofemployees?      @relation(fields: [NoOfEmployeeID], references: [NoOfEmployeeID], onDelete: NoAction, onUpdate: NoAction, map: "FK_Company_NoOfEmployee")
+  companydepartment  companydepartment[]
+  companyuser        companyuser[]
+  job                job[]
+}
+
+model companydepartment {
+  CompanyDepartmentID String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  CompanyId           String?      @db.Uuid
+  DepartmentId        String?      @db.Uuid
+  company             company?     @relation(fields: [CompanyId], references: [CompanyId], onDelete: NoAction, onUpdate: NoAction, map: "FK_CompanyDepartment_Company")
+  departments         departments? @relation(fields: [DepartmentId], references: [DepartmentID], onDelete: NoAction, onUpdate: NoAction, map: "FK_CompanyDepartment_Department")
+}
+
+model companyuser {
+  CompanyUserId      String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  FirstName          String?   @db.VarChar(255)
+  LastName           String?   @db.VarChar(255)
+  Username           String?   @db.VarChar(255)
+  Email              String?   @unique @db.VarChar(255)
+  Password           String?   @db.VarChar(255)
+  UserMobile         String?   @db.VarChar(50)
+  Status             String?   @db.VarChar(50)
+  OTP                String?   @db.VarChar(6)
+  LastOTPRequestedAt DateTime? @db.Timestamp(6)
+  CompanyCreatedDate DateTime? @db.Timestamp(6)
+  CompanyId          String?   @db.Uuid
+  LastUpdatedDate    DateTime? @db.Date
+  company            company?  @relation(fields: [CompanyId], references: [CompanyId], onDelete: NoAction, onUpdate: NoAction, map: "FK_CompanyUser_Company")
+}
+
+model departments {
+  DepartmentID      String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  DepartmentName    String              @db.VarChar(255)
+  companydepartment companydepartment[]
+}
+
+model industries {
+  IndustryID   String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  IndustryName String    @db.VarChar(255)
+  company      company[]
+}
+
+model job {
+  id           String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name         String?  @db.VarChar(255)
+  position     String   @db.VarChar(300)
+  postedDate   DateTime @db.Timestamp(6)
+  description  String   @db.VarChar(2000)
+  requirements String?  @db.VarChar(2500)
+  image        String?  @db.VarChar(2000)
+  type         String   @db.VarChar(255)
+  companyId    String?  @db.Uuid
+  company      company? @relation(fields: [companyId], references: [CompanyId], onDelete: NoAction, onUpdate: NoAction, map: "FK_CompanyId")
+}
+
+model noofemployees {
+  NoOfEmployeeID   String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  NoOfEmployeeType String    @db.VarChar(255)
+  company          company[]
+}

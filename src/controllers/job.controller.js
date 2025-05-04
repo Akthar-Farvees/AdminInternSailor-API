@@ -1,69 +1,73 @@
-const { poolPromise } = require("../config/db");
-const sql = require("mssql");
+const prisma = require("../config/prisma.config");
 
+// GET all jobs with company name and location
 const getJobs = async (req, res) => {
   try {
-    const pool = await poolPromise;
-    const result = await pool.request().query(`
-       SELECT 
-    J.*, 
-    CONVERT(VARCHAR(10), J.postedDate, 120) AS Date, 
-    C.CompanyName, C.CompanyLocation
-FROM job J
-INNER JOIN company C 
-    ON J.companyId = C.CompanyId;
+    const jobs = await prisma.job.findMany({
+      select: {
+        id: true,
+        name: true,
+        position: true,
+        postedDate: true,
+        description: true,
+        requirements: true,
+        image: true,
+        type: true,
+        company: {
+          select: {
+            CompanyName: true,
+            CompanyLocation: true,
+          },
+        },
+      },
+    });
 
-        `);
-    res.status(200).json(result.recordset);
+    // Map to match your original structure (adding formatted Date)
+    const formattedJobs = jobs.map(job => ({
+      ...job,
+      Date: job.postedDate ? job.postedDate.toISOString().split('T')[0] : null, // format: yyyy-mm-dd
+      CompanyName: job.company?.CompanyName || null,
+      CompanyLocation: job.company?.CompanyLocation || null,
+    }));
+
+    res.status(200).json(formattedJobs);
   } catch (error) {
-    console.error("Error fetching companies:", error);
+    console.error("Error fetching jobs:", error);
     res.status(500).json({ message: "Server Error", error });
   }
 };
 
+// DELETE a job by id
 const deleteJob = async (req, res) => {
-  const id = req.params.id;
+  const { id } = req.params;
 
-  // Input validation
   if (!id) {
     return res.status(400).json({ error: "Job ID is required" });
   }
 
   try {
-    // Get the pool from the connection pool manager
-    const pool = await poolPromise;
+    // First, find if the job exists
+    const job = await prisma.job.findUnique({
+      where: { id },
+    });
 
-    // SQL query with parameterized input to prevent SQL injection
-    const query = `
-            DELETE J
-            FROM Job J
-            INNER JOIN Company C 
-            ON J.CompanyId = C.CompanyId
-            WHERE J.id = @id`;
-
-    // Execute the query using parameterized input
-    const result = await pool
-      .request()
-      .input("id", sql.UniqueIdentifier, id) // Use the correct SQL type (e.g., UniqueIdentifier for GUIDs)
-      .query(query);
-
-    // If no rows were affected, the job was not found
-    if (result.rowsAffected[0] === 0) {
+    if (!job) {
       return res.status(404).json({ error: "Job not found" });
     }
 
-    // Successful deletion
-    return res
-      .status(200)
-      .json({ message: "Job is deleted successfully" });
-  } catch (err) {
-    // Internal server error
-    console.error("Error executing query", err);
-    return res.status(500).json({ error: "Database error" });
+    // If job exists, delete it
+    await prisma.job.delete({
+      where: { id },
+    });
+
+    return res.status(200).json({ message: "Job is deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting job:", error);
+    res.status(500).json({ error: "Database error" });
   }
 };
 
 module.exports = {
-    getJobs,
-    deleteJob
+  getJobs,
+  deleteJob,
 };
