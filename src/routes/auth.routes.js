@@ -1,8 +1,8 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { login } = require('../controllers/auth.controller');
-const { loginLimiter } = require('../middlewares/rate.limiter');
+import { login } from '../controllers/auth.controller.js';
+import { loginLimiter } from '../middlewares/rate.limiter.js';
 
 router.post('/login', loginLimiter, login);
 
-module.exports = router;
+export default router;

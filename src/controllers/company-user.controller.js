@@ -1,10 +1,17 @@
-const userService = require("../services/company-user.service");
-const { poolPromise } = require('../config/db');
-const sql = require('mssql');
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
-const getUsersWithCompany = async (req, res) => {
+// ----------------------
+// Get All Users with Company
+// ----------------------
+export const getUsersWithCompany = async (req, res) => {
   try {
-    const users = await userService.getAllUsersWithCompany();
+    const users = await prisma.companyUser.findMany({
+      include: {
+        company: true, // Assuming relation exists in Prisma schema
+      },
+    });
+
     res.status(200).json({
       success: true,
       data: users,
@@ -18,162 +25,128 @@ const getUsersWithCompany = async (req, res) => {
   }
 };
 
-const deleteCompanyUser = async (req, res) => {
-  const CompanyUserId = req.params.CompanyUserId;
+// ----------------------
+// Delete Company User
+// ----------------------
+export const deleteCompanyUser = async (req, res) => {
+  const { CompanyUserId } = req.params;
 
-  // Input validation
   if (!CompanyUserId) {
-    return res.status(400).json({ error: "Job ID is required" });
+    return res.status(400).json({ error: "CompanyUserId is required" });
   }
 
   try {
-    // Get the pool from the connection pool manager
-    const pool = await poolPromise;
+    const user = await prisma.companyUser.findUnique({
+      where: { CompanyUserId },
+    });
 
-    // SQL query with parameterized input to prevent SQL injection
-    const query = `
-            DELETE CU
-            FROM CompanyUser CU
-            INNER JOIN Company C 
-            ON CU.CompanyId = C.CompanyId
-            WHERE CU.CompanyUserId = @CompanyUserId`;
-
-    // Execute the query using parameterized input
-    const result = await pool
-      .request()
-      .input("CompanyUserId", sql.UniqueIdentifier, CompanyUserId) // Use the correct SQL type (e.g., UniqueIdentifier for GUIDs)
-      .query(query);
-
-    // If no rows were affected, the job was not found
-    if (result.rowsAffected[0] === 0) {
+    if (!user) {
       return res.status(404).json({ error: "Company User not found" });
     }
 
-    // Successful deletion
-    return res
-      .status(200)
-      .json({ message: "Company User is deleted successfully" });
-  } catch (err) {
-    // Internal server error
-    console.error("Error executing query", err);
-    return res.status(500).json({ error: "Database error" });
+    await prisma.companyUser.delete({
+      where: { CompanyUserId },
+    });
+
+    res.status(200).json({ message: "Company User deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting Company User:", error);
+    res.status(500).json({ error: "Database error" });
   }
 };
 
+// ----------------------
+// Approve Admin Approval
+// ----------------------
+export const approveAdminApproval = async (req, res) => {
+  try {
+    const { email } = req.body;
 
-const approveAdminApproval = async (req, res) => {
-    try {
-      const { email } = req.body;
-  
-      const pool = await poolPromise;
-      const request = pool.request();
-      request.input("email", sql.NVarChar, email);
-  
-      const userQuery = `
-        SELECT * FROM CompanyUser 
-        WHERE Email = @email AND Status = 'WAITING_FOR_ADMIN'
-      `;
-      const userResult = await request.query(userQuery);
-  
-      if (userResult.recordset.length === 0) {
-        return res
-          .status(400)
-          .json({ message: "No pending approvals for this email." });
-      }
-  
-      const updateQuery = `
-        UPDATE CompanyUser 
-        SET Status = 'ACTIVE', OTP = NULL 
-        WHERE Email = @email
-      `;
-      await request.query(updateQuery);
-  
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await prisma.companyUser.findFirst({
+      where: {
+        Email: email,
+        Status: "WAITING_FOR_ADMIN",
+      },
+    });
+
+    if (!user) {
       return res
-        .status(200)
-        .json({ message: "Admin approved. User account is now active." });
-    } catch (error) {
-      console.error("Error in approveAdminApproval:", error);
-      return res.status(500).json({ message: "Internal Server Error" });
+        .status(400)
+        .json({ message: "No pending approvals for this email." });
     }
-  };
 
+    await prisma.companyUser.update({
+      where: { CompanyUserId: user.CompanyUserId },
+      data: {
+        Status: "ACTIVE",
+        OTP: null,
+      },
+    });
 
-  const updateCompanyUser = async (req, res) => {
-    const { CompanyUserId } = req.params;
-    const {
-      FirstName,
-      LastName,
-      Email,
-      Username,
-      UserMobile,
-      Status,
-    } = req.body;
+    return res
+      .status(200)
+      .json({ message: "Admin approved. User account is now active." });
+  } catch (error) {
+    console.error("Error in approveAdminApproval:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
 
-    console.log('Received data:', {
-      FirstName,
-      LastName,
-      Email,
-      Username,
-      UserMobile,
-      Status
-      });
-      
-  
-    // Basic validation
-    if (
-      !FirstName ||
-      !LastName ||
-      !Email ||
-      !Username ||
-      !UserMobile ||
-      !Status
-    ) {
-      return res.status(400).json({ error: "All fields are required" });
-    }
-  
-    try {
-      const pool = await poolPromise;
+// ----------------------
+// Update Company User
+// ----------------------
+export const updateCompanyUser = async (req, res) => {
+  const { CompanyUserId } = req.params;
+  const { FirstName, LastName, Email, Username, UserMobile, Status } = req.body;
 
-  
-      const result = await pool
-        .request()
-        .input("CompanyUserId", sql.UniqueIdentifier, CompanyUserId)
-        .input("FirstName", sql.NVarChar(255), FirstName)
-        .input("LastName", sql.NVarChar(255), LastName)
-        .input("Email", sql.NVarChar(255), Email)
-        .input("Username", sql.NVarChar(sql.MAX), Username)
-        .input("UserMobile", sql.NVarChar(sql.MAX), UserMobile)
-        .input("Status", sql.NVarChar(100), Status)
-        .query(`
-          UPDATE CompanyUser
-          SET
-            FirstName = @FirstName,
-            LastName = @LastName,
-            Email = @Email,
-            Username = @Username,
-            UserMobile = @UserMobile,
-            Status = @Status,
-            ${Status === "ACTIVE" ? "OTP = NULL," : ""}
-            LastUpdatedDate = GETDATE()
-          WHERE CompanyUserId = @CompanyUserId
-        `);
-  
-      if (result.rowsAffected[0] === 0) {
-        return res.status(404).json({ error: "Company User is not found" });
-      }
-  
-      res.json({ message: "Company User is updated successfully!" });
-    } catch (error) {
-      console.error("Error updating Company User:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
+  if (
+    !FirstName ||
+    !LastName ||
+    !Email ||
+    !Username ||
+    !UserMobile ||
+    !Status
+  ) {
+    return res.status(400).json({ error: "All fields are required" });
   }
 
-module.exports = {
+  try {
+    const user = await prisma.companyUser.findUnique({
+      where: { CompanyUserId },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "Company User not found" });
+    }
+
+    await prisma.companyUser.update({
+      where: { CompanyUserId },
+      data: {
+        FirstName,
+        LastName,
+        Email,
+        Username,
+        UserMobile,
+        Status,
+        OTP: Status === "ACTIVE" ? null : user.OTP,
+        LastUpdatedDate: new Date(),
+      },
+    });
+
+    res.json({ message: "Company User updated successfully!" });
+  } catch (error) {
+    console.error("Error updating Company User:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export default {
   getUsersWithCompany,
   deleteCompanyUser,
   approveAdminApproval,
-  updateCompanyUser
+  updateCompanyUser,
 };
-
-

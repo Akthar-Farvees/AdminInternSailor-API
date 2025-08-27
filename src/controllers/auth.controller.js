@@ -1,9 +1,13 @@
-const jwt = require('jsonwebtoken');
-const prisma = require('../config/prisma.config');
-const { comparePassword } = require('../utils/hash.utils');
-require('dotenv').config();
+import dotenv from "dotenv";
+import jwt from 'jsonwebtoken';
+import { comparePassword } from '../utils/hash.utils.js';
 
-const login = async (req, res) => {
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+
+dotenv.config();
+
+export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
 
@@ -47,4 +51,7 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { login };
+
+export default {
+    login
+};

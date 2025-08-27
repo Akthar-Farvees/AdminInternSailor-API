@@ -1,12 +1,12 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const companyController = require('../controllers/company.controller');
+import {getCompanies, getIndustries, getEmployeeType, getIndustryById, updateCompany, deleteCompany} from '../controllers/company.controller.js';
 
-router.get('/', companyController.getCompanies);
-router.get('/industries', companyController.getIndustries);
-router.get('/employee/type', companyController.getEmployeeType);
-router.get('/industries/:id', companyController.getIndustryById);
-router.put('/:CompanyId', companyController.updateCompany);
-router.delete('/:CompanyId', companyController.deleteCompany);
+router.get('/', getCompanies);
+router.get('/industries', getIndustries);
+router.get('/employee/type', getEmployeeType);
+router.get('/industries/:id', getIndustryById);
+router.put('/:CompanyId', updateCompany);
+router.delete('/:CompanyId', deleteCompany);
 
-module.exports = router;
+export default router;

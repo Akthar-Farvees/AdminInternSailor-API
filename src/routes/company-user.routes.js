@@ -1,11 +1,11 @@
-const express = require('express');
+import  express from 'express';
 const router = express.Router();
-const userController = require('../controllers/company-user.controller.js');
+import {getUsersWithCompany, deleteCompanyUser, approveAdminApproval, updateCompanyUser} from '../controllers/company-user.controller.js';
 
-router.get('/company-users', userController.getUsersWithCompany);
-router.delete('/delete-company-user/:CompanyUserId', userController.deleteCompanyUser);
-router.post('/approve-waiting-approval', userController.approveAdminApproval);
-router.put('/update-company-user/:CompanyUserId', userController.updateCompanyUser);
+router.get('/company-users', getUsersWithCompany);
+router.delete('/delete-company-user/:CompanyUserId', deleteCompanyUser);
+router.post('/approve-waiting-approval', approveAdminApproval);
+router.put('/update-company-user/:CompanyUserId', updateCompanyUser);
 
-module.exports = router;
+export default router;
 

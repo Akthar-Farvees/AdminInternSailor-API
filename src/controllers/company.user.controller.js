@@ -1,8 +1,8 @@
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 // Fetch all users with their company name
-const getUsersWithCompany = async (req, res) => {
+export const getUsersWithCompany = async (req, res) => {
   try {
     const users = await prisma.companyuser.findMany({
       include: {
@@ -41,7 +41,7 @@ const getUsersWithCompany = async (req, res) => {
 };
 
 // Delete a company user
-const deleteCompanyUser = async (req, res) => {
+export const deleteCompanyUser = async (req, res) => {
   const { CompanyUserId } = req.params;
 
   if (!CompanyUserId) {
@@ -72,7 +72,7 @@ const deleteCompanyUser = async (req, res) => {
 };
 
 // Approve user by admin
-const approveAdminApproval = async (req, res) => {
+export const approveAdminApproval = async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -107,7 +107,7 @@ const approveAdminApproval = async (req, res) => {
 };
 
 // Update a company user
-const updateCompanyUser = async (req, res) => {
+export const updateCompanyUser = async (req, res) => {
   const { CompanyUserId } = req.params;
   const {
     FirstName,
@@ -164,7 +164,7 @@ const updateCompanyUser = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   getUsersWithCompany,
   deleteCompanyUser,
   approveAdminApproval,

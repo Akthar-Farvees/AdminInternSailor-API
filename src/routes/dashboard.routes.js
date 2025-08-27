@@ -1,8 +1,8 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const companyController = require('../controllers/dashboard.controller');
+import {getDashboardCounts, getJobApplicationsTrend} from '../controllers/dashboard.controller.js';
 
-router.get('/counts', companyController.getDashboardCounts);
-router.get('/today-jobs', companyController.getJobApplicationsTrend);
+router.get('/counts', getDashboardCounts);
+router.get('/today-jobs', getJobApplicationsTrend);
 
-module.exports = router;
+export default router;

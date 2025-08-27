@@ -1,7 +1,7 @@
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
-const getCompanies = async (req, res) => {
+export const getCompanies = async (req, res) => {
   try {
     const companies = await prisma.company.findMany({
       include: {
@@ -33,7 +33,7 @@ const getCompanies = async (req, res) => {
   }
 };
 
-const getIndustries = async (req, res) => {
+export const getIndustries = async (req, res) => {
   try {
     const industries = await prisma.industries.findMany();
     res.status(200).json(industries);
@@ -43,7 +43,7 @@ const getIndustries = async (req, res) => {
   }
 };
 
-const getEmployeeType = async (req, res) => {
+export const getEmployeeType = async (req, res) => {
   try {
     const employeeTypes = await prisma.noofemployees.findMany();
     res.status(200).json(employeeTypes);
@@ -53,7 +53,7 @@ const getEmployeeType = async (req, res) => {
   }
 };
 
-const getIndustryById = async (req, res) => {
+export const getIndustryById = async (req, res) => {
   try {
     const { id } = req.params;
     const industry = await prisma.industries.findUnique({
@@ -74,7 +74,7 @@ const getIndustryById = async (req, res) => {
   }
 };
 
-const updateCompany = async (req, res) => {
+export const updateCompany = async (req, res) => {
   const { CompanyId } = req.params;
   let {
     CompanyName,
@@ -127,7 +127,7 @@ const updateCompany = async (req, res) => {
   }
 };
 
-const deleteCompany = async (req, res) => {
+export const deleteCompany = async (req, res) => {
   const { CompanyId } = req.params;
 
   if (!CompanyId) {
@@ -170,7 +170,7 @@ const deleteCompany = async (req, res) => {
 };
 
   
-module.exports = { 
+export default { 
   getCompanies,
   getIndustries,
   getEmployeeType,

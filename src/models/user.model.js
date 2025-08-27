@@ -1,31 +1,32 @@
-const prisma = require('../config/prisma.config');
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
-const getUserByUsername = async (username) => {
+export const getUserByUsername = async (username) => {
   return await prisma.adminUser.findUnique({
     where: { username }
   });
 };
 
-const createUser = async (userData) => {
+export const createUser = async (userData) => {
   return await prisma.adminUser.create({
     data: userData
   });
 };
 
-const updateUser = async (id, userData) => {
+export const updateUser = async (id, userData) => {
   return await prisma.adminUser.update({
     where: { id },
     data: userData
   });
 };
 
-const deleteUser = async (id) => {
+export const deleteUser = async (id) => {
   return await prisma.adminUser.delete({
     where: { id }
   });
 };
 
-const getAllUsers = async () => {
+export const getAllUsers = async () => {
   return await prisma.adminUser.findMany({
     select: {
       id: true,
@@ -40,7 +41,7 @@ const getAllUsers = async () => {
   });
 };
 
-module.exports = { 
+export default { 
   getUserByUsername,
   createUser,
   updateUser,

@@ -1,7 +1,8 @@
-const prisma = require('../config/prisma.config');  // Prisma client
-const bcrypt = require('bcrypt');
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+import bcrypt from 'bcrypt';
 
-const getAdminUser = async (req, res) => {
+export const getAdminUser = async (req, res) => {
   const adminUserId = req.params.adminUserId;
   try {
     // Fetch user using Prisma
@@ -21,7 +22,7 @@ const getAdminUser = async (req, res) => {
   }
 };
 
-const updateAdminUser = async (req, res) => {
+export const updateAdminUser = async (req, res) => {
   const { adminUserId } = req.params;
   const { FirstName, LastName, Email, CurrentPassword, NewPassword } = req.body;
 
@@ -91,7 +92,7 @@ const updateAdminUser = async (req, res) => {
 };
 
 
-module.exports = {
+export default {
   getAdminUser,
   updateAdminUser,
 };

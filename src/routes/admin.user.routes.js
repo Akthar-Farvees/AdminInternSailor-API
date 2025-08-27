@@ -1,9 +1,9 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const adminUserController = require('../controllers/admin.user.controller.js');
+import {getAdminUser, updateAdminUser} from '../controllers/admin.user.controller.js';
 
 
-router.get('/:adminUserId', adminUserController.getAdminUser);
-router.put('/:adminUserId', adminUserController.updateAdminUser);
+router.get('/:adminUserId', getAdminUser);
+router.put('/:adminUserId', updateAdminUser);
 
-module.exports = router;
+export default router;

@@ -1,7 +1,9 @@
-const prisma = require("../config/prisma.config");
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+
 
 // GET all jobs with company name and location
-const getJobs = async (req, res) => {
+export const getJobs = async (req, res) => {
   try {
     const jobs = await prisma.job.findMany({
       select: {
@@ -38,7 +40,7 @@ const getJobs = async (req, res) => {
 };
 
 // DELETE a job by id
-const deleteJob = async (req, res) => {
+export const deleteJob = async (req, res) => {
   const { id } = req.params;
 
   if (!id) {
@@ -67,7 +69,7 @@ const deleteJob = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   getJobs,
   deleteJob,
 };

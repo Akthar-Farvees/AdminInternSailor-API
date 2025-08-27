@@ -1,6 +1,8 @@
-const prisma = require("../config/prisma.config");
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
-const getDashboardCounts = async (req, res) => {
+
+export const getDashboardCounts = async (req, res) => {
   try {
     const companyCount = await prisma.company.count(); // Check the model name here
     const jobCount = await prisma.job.count(); // Check the model name here
@@ -29,7 +31,7 @@ const getDashboardCounts = async (req, res) => {
 };
 
 
-const getJobApplicationsTrend = async (req, res) => {
+export const getJobApplicationsTrend = async (req, res) => {
   try {
     const jobApplicationsTrend = await prisma.job.groupBy({
       by: ['postedDate'],
@@ -57,7 +59,7 @@ const getJobApplicationsTrend = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   getDashboardCounts,
   getJobApplicationsTrend
 };

@@ -1,6 +1,7 @@
-const prisma = require('../config/');
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
-const getAllUsersWithCompany = async () => {
+export const getAllUsersWithCompany = async () => {
   const users = await prisma.companyUser.findMany({
     select: {
       CompanyUserId: true,
@@ -21,6 +22,6 @@ const getAllUsersWithCompany = async () => {
   return users;
 };
 
-module.exports = {
+export default {
   getAllUsersWithCompany,
 };
